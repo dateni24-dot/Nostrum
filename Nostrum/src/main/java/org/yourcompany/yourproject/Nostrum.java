@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Nostrum {
-     private static final String URL = "jdbc:sqlite:Nostrum.db";
+     public static final String URL = "jdbc:sqlite:Nostrum.db";
 
      public void createUser(String username, String password) {
          String sql = "INSERT INTO Users(username, password) VALUES(?, ?)";
