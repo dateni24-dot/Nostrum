@@ -20,7 +20,7 @@ async function loadUsername() {
       usernameElement.textContent = `Hola, ${username}`;
     } else if (usernameElement) {
       // If no session, redirect to login
-      window.location.href = '/Nostrum/login.html';
+      window.location.href = '/Nostrum/html/login.html';
     }
   } catch (error) {
     console.error('Error loading username:', error);

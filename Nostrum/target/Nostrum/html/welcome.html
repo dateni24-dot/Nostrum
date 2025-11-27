@@ -20,7 +20,7 @@
       <strong id="username">Cargando...</strong>
     </div>
 
-    <a href="/Nostrum/login.html" class="btn" onclick="logout()">Cerrar Sesión</a>
+    <a href="/Nostrum/html/login.html" class="btn" onclick="logout()">Cerrar Sesión</a>
   </div>
 
   <script>
@@ -32,7 +32,7 @@
           document.getElementById('username').textContent = data.username;
         } else {
           // No hay sesión, redirigir al login
-          window.location.href = '/Nostrum/login.html';
+          window.location.href = '/Nostrum/html/login.html';
         }
       })
       .catch(err => {
