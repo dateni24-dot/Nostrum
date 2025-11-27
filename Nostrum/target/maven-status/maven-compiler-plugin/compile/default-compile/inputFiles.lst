@@ -1,6 +1,6 @@
-C:\Users\damasa\Desktop\Nostrum-1\Nostrum\Backend\java\org\yourcompany\yourproject\controllers\LoginController.java
-C:\Users\damasa\Desktop\Nostrum-1\Nostrum\Backend\java\org\yourcompany\yourproject\util\PasswordUtil.java
-C:\Users\damasa\Desktop\Nostrum-1\Nostrum\Backend\java\org\yourcompany\yourproject\models\User.java
-C:\Users\damasa\Desktop\Nostrum-1\Nostrum\Backend\java\org\yourcompany\yourproject\dao\UserDAO.java
-C:\Users\damasa\Desktop\Nostrum-1\Nostrum\Backend\java\org\yourcompany\yourproject\controllers\RegisterController.java
-C:\Users\damasa\Desktop\Nostrum-1\Nostrum\Backend\java\org\yourcompany\yourproject\listeners\DatabaseInitializer.java
+/home/vitto/Escritorio/Nostrum/Nostrum/Nostrum/Backend/java/org/yourcompany/yourproject/models/User.java
+/home/vitto/Escritorio/Nostrum/Nostrum/Nostrum/Backend/java/org/yourcompany/yourproject/controllers/RegisterController.java
+/home/vitto/Escritorio/Nostrum/Nostrum/Nostrum/Backend/java/org/yourcompany/yourproject/listeners/DatabaseInitializer.java
+/home/vitto/Escritorio/Nostrum/Nostrum/Nostrum/Backend/java/org/yourcompany/yourproject/dao/UserDAO.java
+/home/vitto/Escritorio/Nostrum/Nostrum/Nostrum/Backend/java/org/yourcompany/yourproject/controllers/LoginController.java
+/home/vitto/Escritorio/Nostrum/Nostrum/Nostrum/Backend/java/org/yourcompany/yourproject/util/PasswordUtil.java
