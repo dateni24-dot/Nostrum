@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nostrum | Iniciar Sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="/Nostrum/css/styles.css" rel="stylesheet">
+</head>
+<body>
+  <header>Nostrum</header>
+  <div class="orb orb--one"></div>
+  <div class="orb orb--two"></div>
+
+  <div class="login-container panel">
+    <h1><span style="color:var(--neon-blue)">Inicia Sesión</span></h1>
+    <p class="lead">Bienvenido de vuelta. Accede a tu cuenta.</p>
+
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <div>
+        <label for="usuario">Usuario</label>
+        <input id="usuario" name="usuario" type="text" placeholder="Tu usuario" required>
+      </div>
+
+      <div>
+        <label for="contrasena">Contraseña</label>
+        <input id="contrasena" name="contrasena" type="password" placeholder="Tu contraseña" required>
+      </div>
+
+      <button class="submit" type="submit">Iniciar Sesión</button>
+
+      <div class="error-message" id="errorMsg"></div>
+
+      <div class="link-signup">
+        ¿No tienes cuenta? <a href="register.html">Regístrate aquí</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    async function handleLogin(e){
+      e.preventDefault();
+      const btn = document.querySelector('.submit');
+      const errorMsg = document.getElementById('errorMsg');
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = 'Iniciando...';
+      errorMsg.style.display = 'none';
+
+      const usuario = document.getElementById('usuario').value;
+      const contrasena = document.getElementById('contrasena').value;
+
+      const params = new URLSearchParams({ usuario, contrasena });
+
+      try {
+        const res = await fetch('/Nostrum/loginJdbc', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString()
+        });
+        const text = await res.text();
+        
+        if (res.ok && text.trim().startsWith('OK')) {
+          // Store username in session storage for home page
+          sessionStorage.setItem('usuario', usuario);
+          
+          btn.textContent = '✅ Sesión iniciada';
+          btn.style.filter = 'brightness(1.05)';
+          setTimeout(() => {
+            window.location.href = '/Nostrum/html/home.html';
+          }, 1500);
+        } else {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          errorMsg.textContent = text;
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = originalText;
+        errorMsg.textContent = 'Error de red: ' + err.message;
+        errorMsg.style.display = 'block';
+      }
+
+      return false;
+    }
+
+    // Efecto de partículas flotantes
+    (function(){
+      for(let i=0;i<14;i++){
+        const d=document.createElement('div');
+        d.style.position='absolute';
+        d.style.width=(6+Math.random()*18|0)+'px';
+        d.style.height=d.style.width;
+        d.style.left=(Math.random()*100)+'%';
+        d.style.top=(Math.random()*100)+'%';
+        d.style.background='rgba(0,179,255,'+(0.05+Math.random()*0.12)+')';
+        d.style.borderRadius='50%';
+        d.style.transform='translate(-50%,-50%)';
+        d.style.filter='blur(8px)';
+        d.style.animation='drift '+(8+Math.random()*12)+'s ease-in-out infinite';
+        d.style.pointerEvents='none';
+        document.body.appendChild(d);
+      }
+    })();
+
+    const s = document.createElement('style');
+    s.innerHTML = '@keyframes drift{0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-40px) translateX(30px)}100%{transform:translateY(0) translateX(0)}}';
+    document.head.appendChild(s);
+  </script>
+</body>
+</html>

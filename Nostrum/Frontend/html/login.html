@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Nostrum | Iniciar Sesión</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link href="../css/styles.css" rel="stylesheet">
+  <link href="/Nostrum/css/styles.css" rel="stylesheet">
 </head>
 <body>
   <header>Nostrum</header>
@@ -61,10 +61,13 @@
         const text = await res.text();
         
         if (res.ok && text.trim().startsWith('OK')) {
+          // Store username in session storage for home page
+          sessionStorage.setItem('usuario', usuario);
+          
           btn.textContent = '✅ Sesión iniciada';
           btn.style.filter = 'brightness(1.05)';
           setTimeout(() => {
-            window.location.href = '/Nostrum/welcome.html';
+            window.location.href = '/Nostrum/html/home.html';
           }, 1500);
         } else {
           btn.disabled = false;
