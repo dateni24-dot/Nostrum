@@ -19,8 +19,16 @@ public class RegisterController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        System.out.println("========================================");
+        System.out.println("🚀 RegisterController.doPost INVOCADO");
+        System.out.println("========================================");
+        
         String usuario = request.getParameter("usuario");
         String contrasena = request.getParameter("contrasena");
+        
+        System.out.println("📥 Parámetros recibidos:");
+        System.out.println("   Usuario: " + usuario);
+        System.out.println("   Contraseña: " + (contrasena != null ? "[" + contrasena.length() + " caracteres]" : "null"));
 
         response.setContentType("text/plain; charset=UTF-8");
 

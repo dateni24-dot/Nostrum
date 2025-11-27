@@ -12,6 +12,13 @@ import org.yourcompany.yourproject.util.PasswordUtil;
 public class UserDAO {
     
     private Connection getConnection() throws SQLException {
+        // Cargar el driver explícitamente
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver SQLite no encontrado", e);
+        }
+        
         String catalina = System.getProperty("catalina.base");
         String dbPath = (catalina != null) 
             ? "jdbc:sqlite:" + catalina + "/Nostrum.db"
@@ -23,6 +30,9 @@ public class UserDAO {
         String sql = "SELECT id, username FROM Users WHERE username = ? AND password = ?";
         String hashedPassword = PasswordUtil.hashPassword(password);
         
+        System.out.println("🔐 Intentando login - Usuario: " + username);
+        System.out.println("🔐 Password hasheado: " + hashedPassword);
+        
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
@@ -31,10 +41,14 @@ public class UserDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                    System.out.println("✓ Login exitoso: " + username);
                     return new User(rs.getInt("id"), rs.getString("username"));
+                } else {
+                    System.out.println("❌ Login fallido: usuario/contraseña no coinciden");
                 }
             }
         } catch (SQLException e) {
+            System.err.println("❌ Error SQL en login: " + username);
             e.printStackTrace();
         }
         return null;
@@ -43,6 +57,7 @@ public class UserDAO {
     public boolean register(String username, String password) {
         // Verificar si el usuario ya existe
         if (userExists(username)) {
+            System.out.println("❌ Usuario ya existe: " + username);
             return false;
         }
         
@@ -54,10 +69,12 @@ public class UserDAO {
             
             stmt.setString(1, username);
             stmt.setString(2, hashedPassword);
-            stmt.executeUpdate();
+            int rows = stmt.executeUpdate();
+            System.out.println("✓ Usuario registrado: " + username + " (rows: " + rows + ")");
             return true;
             
         } catch (SQLException e) {
+            System.err.println("❌ Error SQL al registrar usuario: " + username);
             e.printStackTrace();
             return false;
         }
@@ -71,11 +88,16 @@ public class UserDAO {
             
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next() && rs.getInt(1) > 0;
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    System.out.println("🔍 Verificando usuario '" + username + "': count=" + count);
+                    return count > 0;
+                }
             }
         } catch (SQLException e) {
+            System.err.println("❌ Error SQL al verificar usuario: " + username);
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 }
