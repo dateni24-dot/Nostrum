@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nostrum | Bienvenido</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link href="../css/styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="orb orb--one"></div>
+  <div class="orb orb--two"></div>
+
+  <div class="container">
+    <h1>¡Bienvenido a Nostrum!</h1>
+    <p>Has iniciado sesión exitosamente</p>
+    
+    <div class="user-info">
+      <p style="margin:0;color:var(--muted);font-size:14px">Usuario:</p>
+      <strong id="username">Cargando...</strong>
+    </div>
+
+    <a href="/Nostrum/html/login.html" class="btn" onclick="logout()">Cerrar Sesión</a>
+  </div>
+
+  <script>
+    // Obtener el nombre de usuario de la sesión
+    fetch('/Nostrum/api/current-user')
+      .then(res => res.json())
+      .then(data => {
+        if (data.username) {
+          document.getElementById('username').textContent = data.username;
+        } else {
+          // No hay sesión, redirigir al login
+          window.location.href = '/Nostrum/html/login.html';
+        }
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        // Usar SessionStorage como fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const user = urlParams.get('user') || sessionStorage.getItem('username') || 'Usuario';
+        document.getElementById('username').textContent = user;
+      });
+
+    function logout() {
+      // Aquí puedes agregar una llamada para invalidar la sesión en el servidor
+      sessionStorage.clear();
+      return true;
+    }
+  </script>
+</body>
+</html>
