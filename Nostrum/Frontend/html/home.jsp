@@ -51,7 +51,7 @@
     <!-- Products Carousel -->
     <section class="popular-section">
       <div class="section-header">
-        <h2>🔥 Productos Populares</h2>
+        <h2> Productos Populares</h2>
         <div class="carousel-controls">
           <button class="carousel-btn prev" onclick="scrollCarousel(-1)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -217,7 +217,7 @@
     <div class="content-grid">
       <!-- News Panel -->
       <aside class="news-panel">
-        <h2>📰 Noticias y Novedades</h2>
+        <h2>Noticias y Novedades</h2>
         <div class="news-list">
           <article class="news-item">
             <div class="news-date">27 Nov 2025</div>
