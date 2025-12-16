@@ -12,7 +12,6 @@ import org.yourcompany.yourproject.models.Product;
 
 public class ProductDAO {
         private Connection getConnection() throws SQLException {
-        // Cargar el driver explícitamente
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {

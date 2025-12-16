@@ -30,8 +30,8 @@ public class UserDAO {
         String sql = "SELECT id, username FROM Users WHERE username = ? AND password = ?";
         String hashedPassword = PasswordUtil.hashPassword(password);
         
-        System.out.println("🔐 Intentando login - Usuario: " + username);
-        System.out.println("🔐 Password hasheado: " + hashedPassword);
+        System.out.println(" Intentando login - Usuario: " + username);
+        System.out.println(" Password hasheado: " + hashedPassword);
         
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
