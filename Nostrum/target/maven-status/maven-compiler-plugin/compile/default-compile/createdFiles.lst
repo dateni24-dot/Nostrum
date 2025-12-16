@@ -1,9 +1,0 @@
-org\yourcompany\yourproject\dao\ProductDAO.class
-org\yourcompany\yourproject\listeners\DatabaseInitializer.class
-org\yourcompany\yourproject\controllers\FrontPageController.class
-org\yourcompany\yourproject\dao\UserDAO.class
-org\yourcompany\yourproject\models\User.class
-org\yourcompany\yourproject\util\PasswordUtil.class
-org\yourcompany\yourproject\controllers\LoginController.class
-org\yourcompany\yourproject\models\Product.class
-org\yourcompany\yourproject\controllers\RegisterController.class
