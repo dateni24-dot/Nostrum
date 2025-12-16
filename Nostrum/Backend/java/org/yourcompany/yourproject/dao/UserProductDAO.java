@@ -21,15 +21,16 @@ public class UserProductDAO {
         String catalina = System.getProperty("catalina.base");
         String dbPath = (catalina != null) 
             ? "jdbc:sqlite:" + catalina + "/Nostrum.db"
-            : "jdbc:sqlite:Nostrum.db";
+            : "jdbc:sqlite:C:/Users/damasa/Desktop/apache-tomcat-10.1.49/Nostrum.db";
         return DriverManager.getConnection(dbPath);
     }
 
-    public List<Product> getProductsByUserId(int userId) {
+    // Obtener productos del carrito (purchased = 0 o NULL)
+    public List<Product> getCartProducts(int userId) {
         List<Product> productos = new ArrayList<>();
         String sql = "SELECT p.* FROM Product p "
                    + "JOIN user_products up ON p.id = up.product_id "
-                   + "WHERE up.user_id = ?";
+                   + "WHERE up.user_id = ? AND (up.purchased = 0 OR up.purchased IS NULL)";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -56,16 +57,18 @@ public class UserProductDAO {
     }
     
     public void addToCart(int userId, int productId) {
-        String sql = "INSERT INTO user_products (user_id, product_id) VALUES (?, ?)";
+        String sql = "INSERT INTO user_products (user_id, product_id, purchased) VALUES (?, ?, 0)";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, userId);
             ps.setInt(2, productId);
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            System.out.println("✓ Insertados " + rows + " registro(s) en user_products");
 
         } catch (SQLException e) {
+            System.err.println("✗ Error al insertar en carrito: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -78,6 +81,22 @@ public class UserProductDAO {
 
             ps.setInt(1, userId);
             ps.setInt(2, productId);
+            int rows = ps.executeUpdate();
+            System.out.println("✓ Eliminados " + rows + " registro(s) de user_products");
+
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar del carrito: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public void removeAllFromCart(int userId) {
+        String sql = "DELETE FROM user_products WHERE user_id = ? AND (purchased = 0 OR purchased IS NULL)";
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
             ps.executeUpdate();
 
         } catch (SQLException e) {
@@ -85,8 +104,9 @@ public class UserProductDAO {
         }
     }
     
-    public void removeAllFromCart(int userId) {
-        String sql = "DELETE FROM user_products WHERE user_id = ?";
+    // Marcar todos los productos del carrito como comprados
+    public void buyProducts(int userId) {
+        String sql = "UPDATE user_products SET purchased = 1 WHERE user_id = ? AND (purchased = 0 OR purchased IS NULL)";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -98,22 +118,13 @@ public class UserProductDAO {
             e.printStackTrace();
         }
     }
-    public void buyProducts(int userId) {
-        String sql = "UPDATE user_products SET purchased = 1 WHERE user_id = ?";
-
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, userId);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        
-
-}   }
-public void getHistoryProducts(int userId) {
-        String sql = "SELECT p.* FROM user_products where purchased = 1 JOIN Product p ON p.id = up.product_id WHERE up.user_id = ?";
+    
+    // Obtener historial de productos comprados (purchased = 1)
+    public List<Product> getHistoryProducts(int userId) {
+        List<Product> productos = new ArrayList<>();
+        String sql = "SELECT p.* FROM Product p "
+                   + "JOIN user_products up ON p.id = up.product_id "
+                   + "WHERE up.user_id = ? AND up.purchased = 1";
 
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -128,12 +139,14 @@ public void getHistoryProducts(int userId) {
                     p.setImage_url(rs.getString("image_url"));
                     p.setPrice(rs.getDouble("price"));
                     
-                    System.out.println(p);
+                    productos.add(p);
                 }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-}   
+        }
+        
+        return productos;
     }
-}       
+}

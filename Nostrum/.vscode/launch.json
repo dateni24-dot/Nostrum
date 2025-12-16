@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run daotest",
+            "request": "launch",
+            "mainClass": "org.yourcompany.yourproject.dao.daotest",
+            "projectName": "Nostrum",
+            "classPaths": [
+                "${workspaceFolder}/Backend/java",
+                "${workspaceFolder}/target/classes",
+                "${workspaceFolder}/target/Nostrum/WEB-INF/lib/sqlite-jdbc-3.41.2.1.jar"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
