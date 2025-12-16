@@ -11,7 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/cart/*")
 public class UserProductsController extends HttpServlet {
@@ -27,26 +26,30 @@ public class UserProductsController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
+        // Temporalmente usar userId 9 para testing
+        int userId = 9;
+        
+        /*HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("/Nostrum/html/login.html");
             return;
         }
 
-        int userId = (int) session.getAttribute("userId");
+        int userId = (int) session.getAttribute("userId");*/
         String path = request.getPathInfo();
 
         if (path == null || path.equals("/")) {
-            // Ver carrito
+           
             List<Product> cartProducts = userProductDAO.getCartProducts(userId);
+            System.out.println("DEBUG: userId=" + userId + ", productos encontrados=" + (cartProducts != null ? cartProducts.size() : "null"));
             request.setAttribute("cartProducts", cartProducts);
-            request.getRequestDispatcher("/cart.jsp").forward(request, response);
+            request.getRequestDispatcher("/html/cart.jsp").forward(request, response);
 
         } else if (path.equals("/history")) {
-            // Historial
+        
             List<Product> history = userProductDAO.getHistoryProducts(userId);
             request.setAttribute("historyProducts", history);
-            request.getRequestDispatcher("/history.jsp").forward(request, response);
+            request.getRequestDispatcher("/html/history.jsp").forward(request, response);
         }
     }
 
@@ -54,13 +57,16 @@ public class UserProductsController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession(false);
+        // Temporalmente usar userId 9 para testing
+        int userId = 9;
+        
+        /*HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("userId") == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("/Nostrum/html/login.html");
             return;
         }
 
-        int userId = (int) session.getAttribute("userId");
+        int userId = (int) session.getAttribute("userId");*/
         String path = request.getPathInfo();
 
         switch (path) {
