@@ -25,13 +25,15 @@ public class UserProductDAO {
         return DriverManager.getConnection(dbPath);
     }
 
-    // Obtener productos del carrito (purchased = 0 o NULL)
     public List<Product> getCartProducts(int userId) {
         List<Product> productos = new ArrayList<>();
         String sql = "SELECT p.* FROM Product p "
                    + "JOIN user_products up ON p.id = up.product_id "
                    + "WHERE up.user_id = ? AND (up.purchased = 0 OR up.purchased IS NULL)";
 
+        System.out.println("DEBUG UserProductDAO - getCartProducts userId: " + userId);
+        System.out.println("DEBUG UserProductDAO - SQL: " + sql);
+        
         try (Connection con = getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -46,8 +48,11 @@ public class UserProductDAO {
                     p.setPrice(rs.getDouble("price"));
                     
                     productos.add(p);
+                    System.out.println("DEBUG UserProductDAO - Producte trobat: " + p.getName());
                 }
             }
+            
+            System.out.println("DEBUG UserProductDAO - Total productes: " + productos.size());
 
         } catch (SQLException e) {
             e.printStackTrace();
