@@ -292,73 +292,143 @@
     </div>
 
     <div class="cart-content">
-      <div class="cart-items">
-        <%
-          List<Product> cartProducts = (List<Product>) request.getAttribute("cartProducts");
-          if (cartProducts == null || cartProducts.isEmpty()) {
-        %>
-          <div class="empty-cart">
-            <div class="empty-icon">🛒</div>
-            <div class="empty-text">Tu carrito está vacío</div>
-            <div class="empty-subtext">¡Agrega productos increíbles para gamers!</div>
-            <a href="/Nostrum/html/home.jsp" class="continue-btn">Explorar Productos</a>
-          </div>
-        <%
-          } else {
-            double subtotal = 0;
-            for (Product product : cartProducts) {
-              subtotal += product.getPrice();
-        %>
-          <div class="cart-item">
-            <img src="<%= product.getImage_url() %>" alt="<%= product.getName() %>" class="item-image">
-            <div class="item-details">
-              <div class="item-name"><%= product.getName() %></div>
-              <div class="item-description"><%= product.getDescription() %></div>
-            </div>
-            <div class="item-actions">
-              <div class="price">€<%= String.format("%.2f", product.getPrice()) %></div>
-              <form action="/Nostrum/cart/remove" method="post" style="display: inline;">
-                <input type="hidden" name="productId" value="<%= product.getId() %>">
-                <button type="submit" class="remove-btn">Eliminar</button>
-              </form>
-            </div>
-          </div>
-        <%
-            }
-        %>
+      <div class="cart-items" id="cartItemsContainer">
+        <!-- Los productos se cargarán dinámicamente desde localStorage -->
       </div>
 
-      <div class="order-summary">
+      <div class="order-summary" id="orderSummary" style="display: none;">
         <h2 class="summary-title">Resumen del Pedido</h2>
         <div class="summary-row">
           <span>Subtotal</span>
-          <span>€<%= String.format("%.2f", subtotal) %></span>
+          <span id="subtotal">€0.00</span>
         </div>
         <div class="summary-row">
           <span>Envío</span>
-          <span>€<%= String.format("%.2f", subtotal > 50 ? 0.0 : 4.99) %></span>
+          <span id="shipping">€4.99</span>
         </div>
         <div class="summary-row">
           <span>IVA (21%)</span>
-          <span>€<%= String.format("%.2f", subtotal * 0.21) %></span>
+          <span id="tax">€0.00</span>
         </div>
         <div class="summary-row total">
           <span>Total</span>
-          <span>€<%= String.format("%.2f", subtotal + (subtotal > 50 ? 0 : 4.99) + (subtotal * 0.21)) %></span>
+          <span id="total">€0.00</span>
         </div>
 
-        <form action="/Nostrum/cart/buy" method="post">
-          <button type="submit" class="checkout-btn">Finalizar Compra</button>
-        </form>
-        
-        <form action="/Nostrum/cart/clear" method="post">
-          <button type="submit" class="clear-cart-btn">Vaciar Carrito</button>
-        </form>
+        <button class="checkout-btn" onclick="finalizarCompra()">Finalizar Compra</button>
+        <button class="clear-cart-btn" onclick="vaciarCarrito()">Vaciar Carrito</button>
       </div>
-      <%
-          }
-      %>
     </div>
   </div>
+
+  <script>
+    // Cargar carrito desde localStorage
+    function loadCart() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const container = document.getElementById('cartItemsContainer');
+      const orderSummary = document.getElementById('orderSummary');
+      
+      console.log('🛒 Cart loaded:', cart); // Debug
+      
+      if (cart.length === 0) {
+        container.innerHTML = '<div class="empty-cart">' +
+          '<div class="empty-icon">🛒</div>' +
+          '<div class="empty-text">Tu carrito está vacío</div>' +
+          '<div class="empty-subtext">¡Agrega productos increíbles para gamers!</div>' +
+          '<a href="/Nostrum/html/home.jsp" class="continue-btn">Explorar Productos</a>' +
+          '</div>';
+        orderSummary.style.display = 'none';
+        return;
+      }
+      
+      let subtotal = 0;
+      container.innerHTML = '';
+      
+      cart.forEach(function(item, index) {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        
+        // Usar la imagen guardada o mostrar fallback
+        const imageUrl = item.image || '';
+        
+        console.log('Product:', item.name, 'Image URL:', imageUrl); // Debug
+        
+        let cartItemHTML = '<div class="cart-item">';
+        
+        if (imageUrl) {
+          cartItemHTML += '<img src="' + imageUrl + '" alt="' + item.name + '" class="item-image" ' +
+                         'onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" ' +
+                         'style="width: 120px; height: 120px; object-fit: cover; border-radius: 10px;">' +
+                         '<div class="fallback-icon" style="display: none; width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 10px; align-items: center; justify-content: center; font-size: 3rem; flex-shrink: 0;">🎮</div>';
+        } else {
+          cartItemHTML += '<div class="fallback-icon" style="width: 120px; height: 120px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 3rem; flex-shrink: 0;">🎮</div>';
+        }
+        
+        cartItemHTML += '<div class="item-details" style="flex: 1; margin-left: 20px;">' +
+          '<div class="item-name" style="font-size: 1.2rem; font-weight: 600; margin-bottom: 8px;">' + item.name + '</div>' +
+          '<div class="item-description" style="color: #999; margin-bottom: 5px;">Precio unitario: €' + item.price.toFixed(2) + '</div>' +
+          '<div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">' +
+            '<button onclick="updateQuantity(' + index + ', -1)" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">−</button>' +
+            '<span style="font-size: 1.1rem; font-weight: 600; min-width: 40px; text-align: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 8px;">×' + item.quantity + '</span>' +
+            '<button onclick="updateQuantity(' + index + ', 1)" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">+</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="item-actions" style="text-align: right; margin-left: 20px;">' +
+          '<div class="price" style="font-size: 1.5rem; font-weight: 700; color: #667eea; margin-bottom: 15px;">€' + itemTotal.toFixed(2) + '</div>' +
+          '<button class="remove-btn" onclick="removeFromCart(' + index + ')">Eliminar</button>' +
+        '</div>' +
+        '</div>';
+        
+        container.innerHTML += cartItemHTML;
+      });
+      
+      // Calcular totales
+      const shipping = subtotal > 50 ? 0 : 4.99;
+      const tax = subtotal * 0.21;
+      const total = subtotal + shipping + tax;
+      
+      document.getElementById('subtotal').textContent = '€' + subtotal.toFixed(2);
+      document.getElementById('shipping').textContent = '€' + shipping.toFixed(2);
+      document.getElementById('tax').textContent = '€' + tax.toFixed(2);
+      document.getElementById('total').textContent = '€' + total.toFixed(2);
+      
+      orderSummary.style.display = 'block';
+    }
+    
+    function updateQuantity(index, change) {
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      cart[index].quantity += change;
+      
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+      loadCart();
+    }
+    
+    function removeFromCart(index) {
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      loadCart();
+    }
+    
+    function vaciarCarrito() {
+      if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
+        localStorage.removeItem('cart');
+        loadCart();
+      }
+    }
+    
+    function finalizarCompra() {
+      alert('🎉 ¡Gracias por tu compra!\n\nProcesamiento de pago en desarrollo...');
+      localStorage.removeItem('cart');
+      window.location.href = '/Nostrum/html/home.jsp';
+    }
+    
+    // Cargar carrito al iniciar
+    window.addEventListener('DOMContentLoaded', loadCart);
+  </script>
 </body>
 </html>

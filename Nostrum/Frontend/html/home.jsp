@@ -19,7 +19,7 @@
       <div class="user-info-header">
         <span id="username">Usuario</span>
       </div>
-      <a href="/Nostrum/cart.html" class="icon-btn" title="Carrito">
+      <a href="/Nostrum/html/cart.jsp" class="icon-btn" title="Carrito">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
@@ -48,10 +48,27 @@
 
   <!-- Main Content -->
   <main class="main-content">
+    <!-- Search Results Container -->
+    <div id="searchResults" style="display: none; max-width: 1400px; margin: 0 auto 2rem; padding: 0 20px;">
+      <div style="background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%); border-radius: 15px; padding: 20px;">
+        <h3 style="margin: 0 0 15px 0; color: #667eea;">Resultados de búsqueda</h3>
+        <div id="searchResultsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;"></div>
+      </div>
+    </div>
+
     <!-- Products Carousel -->
+    <%
+        // Cargar productos para el carrusel (primeros 6 productos aleatorios)
+        ProductDAO productDAOCarousel = new ProductDAO();
+        List<Product> productosCarousel = productDAOCarousel.getAllProducts();
+        java.util.Collections.shuffle(productosCarousel);
+        if (productosCarousel.size() > 6) {
+            productosCarousel = productosCarousel.subList(0, 6);
+        }
+    %>
     <section class="popular-section">
       <div class="section-header">
-        <h2> Productos Populares</h2>
+        <h2>🔥 Productos Populares</h2>
         <div class="carousel-controls">
           <button class="carousel-btn prev" onclick="scrollCarousel(-1)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -68,18 +85,25 @@
       
       <div class="carousel-wrapper">
         <div class="carousel" id="popularCarousel">
-          <!-- Producto 1 -->
+          <% 
+          String[] badges = {"HOT", "NEW", "", "HOT", "NEW", ""};
+          int badgeIndex = 0;
+          for (Product producto : productosCarousel) { 
+            String badge = badges[badgeIndex++ % badges.length];
+          %>
           <div class="product-card">
             <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400" alt="Gaming Keyboard">
-              <span class="badge hot">HOT</span>
+              <img src="<%= producto.getImage_url() %>" alt="<%= producto.getName() %>" onerror="this.src='https://via.placeholder.com/400x400/1a1a2e/667eea?text=Sin+Imagen'">
+              <% if (!badge.isEmpty()) { %>
+                <span class="badge <%= badge.toLowerCase() %>"><%= badge %></span>
+              <% } %>
             </div>
             <div class="product-info">
-              <h3>Teclado Mecánico RGB</h3>
-              <p class="product-desc">Switch Red, Retroiluminado</p>
+              <h3><%= producto.getName() %></h3>
+              <p class="product-desc"><%= producto.getDescription() %></p>
               <div class="product-footer">
-                <span class="price">89.99€</span>
-                <button class="add-cart-btn">
+                <span class="price">€<%= String.format("%.2f", producto.getPrice()) %></span>
+                <button class="add-cart-btn" data-id="<%= producto.getId() %>" data-name="<%= producto.getName() %>" data-price="<%= producto.getPrice() %>">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 5v14M5 12h14"/>
                   </svg>
@@ -87,133 +111,91 @@
               </div>
             </div>
           </div>
-
-          <!-- Producto 2 -->
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=400" alt="Gaming Mouse">
-              <span class="badge new">NEW</span>
-            </div>
-            <div class="product-info">
-              <h3>Ratón Gaming Pro</h3>
-              <p class="product-desc">16000 DPI, RGB Programable</p>
-              <div class="product-footer">
-                <span class="price">59.99€</span>
-                <button class="add-cart-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Producto 3 -->
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400" alt="Gaming Headset">
-            </div>
-            <div class="product-info">
-              <h3>Auriculares 7.1</h3>
-              <p class="product-desc">Sonido Envolvente, Micrófono</p>
-              <div class="product-footer">
-                <span class="price">79.99€</span>
-                <button class="add-cart-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Producto 4 -->
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?w=400" alt="Gaming Chair">
-              <span class="badge hot">HOT</span>
-            </div>
-            <div class="product-info">
-              <h3>Silla Gaming Pro</h3>
-              <p class="product-desc">Ergonómica, Reposabrazos 4D</p>
-              <div class="product-footer">
-                <span class="price">249.99€</span>
-                <button class="add-cart-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Producto 5 -->
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400" alt="Nintendo Switch">
-              <span class="badge new">NEW</span>
-            </div>
-            <div class="product-info">
-              <h3>Consola Switch OLED</h3>
-              <p class="product-desc">Pantalla 7", 64GB Interna</p>
-              <div class="product-footer">
-                <span class="price">349.99€</span>
-                <button class="add-cart-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Producto 6 -->
-          <div class="product-card">
-            <div class="product-image">
-              <img src="https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=400" alt="Figura Coleccionable">
-            </div>
-            <div class="product-info">
-              <h3>Figura Link Zelda</h3>
-              <p class="product-desc">Edición Coleccionista 25cm</p>
-              <div class="product-footer">
-                <span class="price">49.99€</span>
-                <button class="add-cart-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 5v14M5 12h14"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+          <% } %>
         </div>
       </div>
     </section>
 
-    <!-- News and Categories Grid -->
-     <h1>Listado de Productos</h1>
-
-<ul>
-<%
-    // Si no vienen del controlador, cargar directamente
-    List<Product> productos = (List<Product>) request.getAttribute("productos");
-    if (productos == null) {
-        ProductDAO productDAO = new ProductDAO();
-        productos = productDAO.getAllProducts();
-    }
+    <!-- Products by Category Section -->
+    <%
+        // Cargar productos desde la base de datos
+        List<Product> productos = (List<Product>) request.getAttribute("productos");
+        if (productos == null) {
+            ProductDAO productDAO = new ProductDAO();
+            productos = productDAO.getAllProducts();
+        }
+        
+        // Organizar productos por categoría basado en el nombre
+        java.util.Map<String, java.util.List<Product>> productosPorCategoria = new java.util.LinkedHashMap<>();
+        if (productos != null && !productos.isEmpty()) {
+            for (Product p : productos) {
+                String categoria = "Otros";
+                String nombre = p.getName().toLowerCase();
+                
+                // Clasificar por palabras clave
+                if (nombre.contains("ratón") || nombre.contains("raton") || nombre.contains("mouse")) {
+                    categoria = "Ratones Gaming";
+                } else if (nombre.contains("teclado") || nombre.contains("keyboard")) {
+                    categoria = "Teclados Mecánicos";
+                } else if (nombre.contains("auricular") || nombre.contains("headset") || nombre.contains("casco")) {
+                    categoria = "Auriculares";
+                } else if (nombre.contains("silla") || nombre.contains("chair")) {
+                    categoria = "Sillas Gaming";
+                } else if (nombre.contains("rtx") || nombre.contains("gráfica") || nombre.contains("gpu")) {
+                    categoria = "Componentes PC";
+                } else if (nombre.contains("ssd") || nombre.contains("disco")) {
+                    categoria = "Almacenamiento";
+                } else if (nombre.contains("funko") || nombre.contains("figura")) {
+                    categoria = "Coleccionables";
+                } else if (nombre.contains("switch") || nombre.contains("consola")) {
+                    categoria = "Consolas";
+                }
+                
+                if (!productosPorCategoria.containsKey(categoria)) {
+                    productosPorCategoria.put(categoria, new java.util.ArrayList<>());
+                }
+                productosPorCategoria.get(categoria).add(p);
+            }
+        }
+        
+        // Mostrar productos por categoría
+        for (java.util.Map.Entry<String, java.util.List<Product>> entry : productosPorCategoria.entrySet()) {
+            String categoria = entry.getKey();
+            java.util.List<Product> productosCategoria = entry.getValue();
+    %>
     
-    if (productos != null && !productos.isEmpty()) {
-        for (Product p : productos) {%>
-            <li>
-                <strong><%= p.getName() %></strong>
-                - <%= p.getPrice() %> €
-            </li>
-    <%  }
-    } else { %>
-        <li>No hay productos disponibles.</li>
-<%  }
-  
-%>
-</ul>
+    <section class="popular-section">
+      <div class="section-header">
+        <h2>🎮 <%= categoria %></h2>
+      </div>
+      
+      <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1400px; margin: 0 auto 3rem; padding: 0 20px;">
+        <% for (Product producto : productosCategoria) { %>
+          <div class="product-card">
+            <div class="product-image">
+              <img src="<%= producto.getImage_url() %>" alt="<%= producto.getName() %>" onerror="this.src='https://via.placeholder.com/400x400/1a1a2e/667eea?text=Sin+Imagen'">
+            </div>
+            <div class="product-info">
+              <h3><%= producto.getName() %></h3>
+              <p class="product-desc"><%= producto.getDescription() %></p>
+              <div class="product-footer">
+                <span class="price">€<%= String.format("%.2f", producto.getPrice()) %></span>
+                <button class="add-cart-btn" data-id="<%= producto.getId() %>" data-name="<%= producto.getName() %>" data-price="<%= producto.getPrice() %>">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </section>
+    
+    <% } %>
+
+    <!-- News and Categories Grid -->
     <div class="content-grid">
       <!-- News Panel -->
       <aside class="news-panel">

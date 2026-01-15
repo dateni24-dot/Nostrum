@@ -132,25 +132,69 @@ function initSearch() {
     }
   });
   
-  // Live search suggestions (future feature)
+  // Live search
   let searchTimeout;
   searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      // Future: Show search suggestions
-      console.log('Searching for:', e.target.value);
-    }, 300);
+    if (e.target.value.trim().length > 0) {
+      searchTimeout = setTimeout(() => {
+        performSearch();
+      }, 500);
+    } else {
+      document.getElementById('searchResults').style.display = 'none';
+    }
   });
 }
 
-function performSearch() {
+async function performSearch() {
   const searchInput = document.getElementById('searchInput');
-  const query = searchInput.value.trim();
+  const query = searchInput.value.trim().toLowerCase();
   
-  if (query.length > 0) {
-    // Future: Navigate to search results page
-    console.log('Performing search for:', query);
-    alert(`🔍 Buscando: "${query}"\n\n(Página de resultados en desarrollo)`);
+  if (query.length === 0) {
+    document.getElementById('searchResults').style.display = 'none';
+    return;
+  }
+
+  // Buscar en los productos visibles en la página
+  const allProducts = document.querySelectorAll('.product-card');
+  const searchResultsContainer = document.getElementById('searchResults');
+  const searchResultsGrid = document.getElementById('searchResultsGrid');
+  
+  searchResultsGrid.innerHTML = '';
+  let foundCount = 0;
+  
+  allProducts.forEach(card => {
+    const productName = card.querySelector('h3').textContent.toLowerCase();
+    const productDesc = card.querySelector('.product-desc').textContent.toLowerCase();
+    
+    if (productName.includes(query) || productDesc.includes(query)) {
+      // Clonar la tarjeta del producto
+      const clonedCard = card.cloneNode(true);
+      
+      // Reinicializar el botón de añadir al carrito en el clon
+      const clonedButton = clonedCard.querySelector('.add-cart-btn');
+      if (clonedButton) {
+        clonedButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const productId = clonedButton.dataset.id;
+          const productName = clonedButton.dataset.name;
+          const productPrice = parseFloat(clonedButton.dataset.price);
+          addToCart(productId, productName, productPrice);
+        });
+      }
+      
+      searchResultsGrid.appendChild(clonedCard);
+      foundCount++;
+    }
+  });
+  
+  if (foundCount > 0) {
+    searchResultsContainer.style.display = 'block';
+    // Scroll suave a los resultados
+    searchResultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    searchResultsGrid.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No se encontraron productos que coincidan con tu búsqueda.</p>';
+    searchResultsContainer.style.display = 'block';
   }
 }
 
@@ -164,13 +208,11 @@ function initAddToCart() {
     button.addEventListener('click', (e) => {
       e.stopPropagation(); // Prevent card click
       
-      const card = button.closest('.product-card');
-      const productName = card.querySelector('h3').textContent;
-      const productPrice = card.querySelector('.price').textContent;
+      const productId = button.dataset.id;
+      const productName = button.dataset.name;
+      const productPrice = parseFloat(button.dataset.price);
       
-      // Extract numeric price
-      const priceValue = parseFloat(productPrice.replace('€', '').trim());
-      addToCart(null, productName, priceValue);
+      addToCart(productId, productName, productPrice);
       
       // Visual feedback
       button.style.transform = 'rotate(90deg) scale(1.2)';
@@ -197,24 +239,43 @@ function addToCart(productId, productName, productPrice) {
   cartCount++;
   updateCartBadge();
   
+  // Buscar la imagen del producto
+  let productImage = '';
+  const allProductCards = document.querySelectorAll('.product-card');
+  allProductCards.forEach(card => {
+    const btn = card.querySelector('.add-cart-btn');
+    if (btn && btn.dataset.id == productId) {
+      const img = card.querySelector('img');
+      if (img) {
+        productImage = img.src;
+        console.log('✅ Image found for product:', productId, productImage);
+      }
+    }
+  });
+  
   // Save to localStorage for cart page
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
   
-  const existingProduct = cart.find(item => item.name === productName);
+  const existingProduct = cart.find(item => item.id == productId);
   if (existingProduct) {
     existingProduct.quantity += 1;
+    console.log('📦 Updated quantity for:', productName, 'New quantity:', existingProduct.quantity);
   } else {
-    cart.push({
+    const newItem = {
       id: productId,
       name: productName,
       price: productPrice,
+      image: productImage,
       quantity: 1
-    });
+    };
+    cart.push(newItem);
+    console.log('🆕 Added new product to cart:', newItem);
   }
   
   localStorage.setItem('cart', JSON.stringify(cart));
   
-  console.log('Added to cart:', productName, productPrice);
+  console.log('🛒 Cart updated. Total items:', cart.length);
+  console.log('Full cart:', cart);
   
   // Show notification
   showNotification(`✅ ${productName} añadido al carrito`);
@@ -278,12 +339,12 @@ function initCategoryNavigation() {
 }
 
 function navigateToCategory(categoryName) {
-  // Future: Navigate to category page
+
   console.log('Navigating to category:', categoryName);
   alert(`🎮 Categoría: ${categoryName}\n\n(Página de categoría en desarrollo)`);
 }
 
-// ========== News Items ==========
+
 const newsItems = document.querySelectorAll('.news-item');
 newsItems.forEach(item => {
   item.addEventListener('click', () => {
@@ -293,8 +354,7 @@ newsItems.forEach(item => {
   });
 });
 
-// ========== Animations ==========
-// Add keyframes for notification animations
+
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideInRight {
@@ -321,7 +381,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ========== Scroll Effects ==========
+
 window.addEventListener('scroll', () => {
   const header = document.querySelector('.main-header');
   const searchContainer = document.querySelector('.search-container');

@@ -109,7 +109,6 @@ public class UserProductDAO {
         }
     }
     
-    // Marcar todos los productos del carrito como comprados
     public void buyProducts(int userId) {
         String sql = "UPDATE user_products SET purchased = 1 WHERE user_id = ? AND (purchased = 0 OR purchased IS NULL)";
 
@@ -124,7 +123,6 @@ public class UserProductDAO {
         }
     }
     
-    // Obtener historial de productos comprados (purchased = 1)
     public List<Product> getHistoryProducts(int userId) {
         List<Product> productos = new ArrayList<>();
         String sql = "SELECT p.* FROM Product p "
